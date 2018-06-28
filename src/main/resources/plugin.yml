@@ -1,0 +1,3 @@
+name: Example Plugin
+version: ${project.version}
+main: org.donnerlab.donnercraft.exampleplugin.ExamplePlugin
