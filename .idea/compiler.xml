@@ -6,11 +6,12 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="donnercraft" />
+        <module name="example-plugin" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="donnercraft" target="1.8" />
+      <module name="example-plugin" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

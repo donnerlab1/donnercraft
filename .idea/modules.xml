@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/donnercraft.iml" filepath="$PROJECT_DIR$/donnercraft.iml" />
+      <module fileurl="file://$PROJECT_DIR$/example-plugin.iml" filepath="$PROJECT_DIR$/example-plugin.iml" />
     </modules>
   </component>
 </project>
