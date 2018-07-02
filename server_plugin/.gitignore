@@ -33,6 +33,8 @@ hs_err_pid*
 .idea/**/dictionaries
 .idea/**/shelf
 
+.vscode/
+
 # Sensitive or high-churn files
 .idea/**/dataSources/
 .idea/**/dataSources.ids

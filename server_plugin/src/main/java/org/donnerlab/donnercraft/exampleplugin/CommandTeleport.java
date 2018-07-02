@@ -15,11 +15,13 @@ public class CommandTeleport implements CommandExecutor {
             Player player = (Player) sender;
 
             if(args != null) {
-                if(args.length != 2) {
+                if(args.length != 1) {
                     player.sendMessage(ChatColor.RED + "wrond Command: use /teleport steps");
                 }
                 String payReq = server.AddTeleportRequest(Integer.parseInt(args[0]), player);
+                QRMapSpawner.SpawnMap(player, payReq);
                 player.sendMessage(payReq);
+
             }
         }
         return true;
