@@ -87,6 +87,11 @@ fabric.properties
 # Sonarlint plugin
 .idea/sonarlint
 
+*.cert
+*.macaroon
+
+spigot_server/
+
 ### Maven ###
 target/
 pom.xml.tag
