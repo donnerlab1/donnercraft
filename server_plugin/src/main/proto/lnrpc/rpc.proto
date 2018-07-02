@@ -3,6 +3,10 @@ syntax = "proto3";
 import "google/api/annotations.proto";
 
 package lnrpc;
+
+
+
+
 /**
  * Comments in this file will be directly parsed into the API
  * Documentation as descriptions of the associated method, message, or field.

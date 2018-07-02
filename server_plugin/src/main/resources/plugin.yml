@@ -1,3 +1,11 @@
 name: ExamplePlugin
 version: ${project.version}
 main: org.donnerlab.donnercraft.exampleplugin.ExamplePlugin
+author: donnerlab
+commands:
+  invoice:
+    description: Get Invoice with memo from server usage /invoice amt memo
+    usage: /invoice
+  teleport:
+    description: Teleport steps with /teleport steps
+    usage: /teleport
