@@ -14,9 +14,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import lnrpc.Rpc.*;
 import org.bukkit.util.Vector;
 
-import java.util.HashMap:
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.security.NoSuchAlgorithmException;
+import java.util.*;
 
 public final class ExamplePlugin extends JavaPlugin implements Listener {
 
@@ -24,16 +23,19 @@ public final class ExamplePlugin extends JavaPlugin implements Listener {
     public LndRpc lndRpc;
 
     private Map<String, PlayerCommandPayload> commandPayloadMap;
-    private List<SellOrder>:
+    private List<SellOrder> sellOrders;
     @Override
     public void onEnable() {
         commandPayloadMap = new HashMap<>();
-        sellMap = new LinkedHashMap<>();
+        sellOrders = new LinkedList<>();
         SetupRpc();
         getCommand("invoice").setExecutor(new CommandInvoice(this));
         getCommand("teleport").setExecutor(new CommandTeleport(this));
         getCommand("sell").setExecutor(new CommandSell(this));
         getCommand("pay").setExecutor(new CommandPay(this));
+        getCommand("listsellorders").setExecutor(new CommandListSellOrders(this));
+        getCommand("getsellorder").setExecutor(new CommandGetSellOrder(this));
+        getCommand("claim").setExecutor(new CommandClaim(this));
         GetInfoResponse response = lndRpc.blockingStub.getInfo(GetInfoRequest.getDefaultInstance());
         System.out.println(response.getIdentityPubkey());
 
@@ -116,17 +118,63 @@ public final class ExamplePlugin extends JavaPlugin implements Listener {
     }
 
     public void AddSellOrderRequest(Player sender, String payReq, ItemStack item) {
-        sellMap.put(payReq, item);
+        sellOrders.add(new SellOrder(item, payReq));
+
         sender.getInventory().remove(item);
 
     }
 
     public void listSellOrders(Player sender){
-        sellMap.forEach((k,v) -> sender.sendMessage(v.toString()+ " "+ lndRpc.blockingStub.decodePayReq(PayReqString.newBuilder().setPayReq(k).build()).getNumSatoshis()));
+        if(sellOrders.size() >= 0) {
+            for (int i = 0; i < sellOrders.size(); i++) {
+                SellOrder temp = sellOrders.get(i);
+                if (!temp.claimed)
+                 sender.sendMessage(i + " item: " + temp.item + " cost: " + lndRpc.blockingStub.decodePayReq(PayReqString.newBuilder().setPayReq(temp.payReq).build()).getNumSatoshis());
+            }
+        }
     }
 
     public void buyItem(Player sender, int number) {
-        sellMap.
+
+        SellOrder sellOrder = sellOrders.get(number);
+        if (!sellOrder.claimed) {
+            sender.sendMessage(sellOrder.payReq);
+            QRMapSpawner.SpawnMap(sender, sellOrder.payReq);
+        } else {
+            sender.sendMessage("item already claimed");
+        }
+
+
+    }
+
+    public void claimItem(Player sender, String preimage){
+        ItemStack item = findMatch(preimage);
+        if (item != null)
+            sender.getInventory().addItem(item);
+    }
+
+    ItemStack findMatch(String preimage){
+        try {
+            String paymentHashIn = Sha.hash256(preimage);
+            if(sellOrders.size() >= 0) {
+                for (int i = 0; i < sellOrders.size(); i++) {
+                    SellOrder temp = sellOrders.get(i);
+                    String paymentHashCalc = lndRpc.blockingStub.decodePayReq(PayReqString.newBuilder().setPayReq(temp.payReq).build()).getPaymentHash();
+
+                    if( paymentHashCalc.equals(paymentHashIn)) {
+
+                        ItemStack item = sellOrders.get(i).item;
+                        sellOrders.get(i).claimed = true;
+                        return item;
+
+                    };
+                }
+            }
+        } catch (Exception se) {
+            System.out.println(se.getMessage());
+        }
+
+        return null;
     }
 
 

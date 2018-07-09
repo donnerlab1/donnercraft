@@ -7,7 +7,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class CommandTeleport implements CommandExecutor {
-    public ExamplePlugin server;
+    ExamplePlugin server;
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {

@@ -15,3 +15,12 @@ commands:
   pay:
     description: send a payment request to a player with /pay player payreq
     usage: /pay
+  listsellorders:
+    description: list sellorders
+    usage: /listsellorders
+  getsellorder:
+    description: get sellorder
+    usage: /getsellorder
+  claim:
+    description: claim sellorder
+    usage: /claim

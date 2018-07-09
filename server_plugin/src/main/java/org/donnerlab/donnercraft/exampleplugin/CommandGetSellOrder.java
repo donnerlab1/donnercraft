@@ -7,9 +7,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.PlayerInventory;
 
-public class CommandSell implements CommandExecutor {
+public class CommandGetSellOrder implements CommandExecutor {
 
     ExamplePlugin server;
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if(sender instanceof Player) {
@@ -17,18 +18,17 @@ public class CommandSell implements CommandExecutor {
 
             if(args != null) {
                 if(args.length != 1) {
-                    player.sendMessage(ChatColor.RED + "wrond Command: use /sell payreq");
+                    player.sendMessage(ChatColor.RED + "wrond Command: use /getsellorder index");
                 }
-                PlayerInventory inv = player.getInventory();
-                //String payReq = server.lndRpc.getPaymentRequest(args[1], Integer.parseInt(args[0]));
+                               //String payReq = server.lndRpc.getPaymentRequest(args[1], Integer.parseInt(args[0]));
                 //player.sendMessage(payReq);
-                server.AddSellOrderRequest(player, args[0], inv.getItemInMainHand());
+                server.buyItem(player, Integer.parseInt(args[0]));
             }
         }
         return true;
     }
 
-    public CommandSell(ExamplePlugin server){
+    public CommandGetSellOrder(ExamplePlugin server) {
         this.server = server;
     }
 }

@@ -7,7 +7,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.PlayerInventory;
 
-public class CommandSell implements CommandExecutor {
+public class CommandClaim implements CommandExecutor {
 
     ExamplePlugin server;
     @Override
@@ -17,18 +17,18 @@ public class CommandSell implements CommandExecutor {
 
             if(args != null) {
                 if(args.length != 1) {
-                    player.sendMessage(ChatColor.RED + "wrond Command: use /sell payreq");
+                    player.sendMessage(ChatColor.RED + "wrond Command: use /claim preimage");
                 }
                 PlayerInventory inv = player.getInventory();
                 //String payReq = server.lndRpc.getPaymentRequest(args[1], Integer.parseInt(args[0]));
                 //player.sendMessage(payReq);
-                server.AddSellOrderRequest(player, args[0], inv.getItemInMainHand());
+                server.claimItem(player, args[0]);
             }
         }
         return true;
     }
 
-    public CommandSell(ExamplePlugin server){
+    public CommandClaim(ExamplePlugin server) {
         this.server = server;
     }
 }
