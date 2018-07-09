@@ -17,22 +17,15 @@ import org.bukkit.map.MapView;
 
 class QRMapSpawner {
 
-<<<<<<< HEAD
     public static ItemStack SpawnMap(Player p, String content) {
-=======
-    static void SpawnMap(Player p, String content) {
->>>>>>> d00517d5c37ba90812c0d25ef51b17fd8af70bdd
         ItemStack itemStack = new ItemStack(Material.MAP, 1);
         MapView view = Bukkit.createMap(p.getWorld());
         view.getRenderers().clear();
         view.addRenderer(new ImageRenderer(generateQRCode(content)));
         itemStack.setDurability(view.getId());
         p.getInventory().addItem(itemStack);
-<<<<<<< HEAD
         return itemStack;
         
-=======
->>>>>>> d00517d5c37ba90812c0d25ef51b17fd8af70bdd
     }
 
     private static BufferedImage generateQRCode(String content) {
