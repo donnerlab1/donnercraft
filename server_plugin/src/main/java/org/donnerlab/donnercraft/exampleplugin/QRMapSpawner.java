@@ -20,13 +20,14 @@ import org.bukkit.map.MapView;
 
 public class QRMapSpawner {
 
-    public static void SpawnMap(Player p, String content) {
+    public static ItemStack SpawnMap(Player p, String content) {
         ItemStack itemStack = new ItemStack(Material.MAP, 1);
         MapView view = Bukkit.createMap(p.getWorld());
         view.getRenderers().clear();
         view.addRenderer(new ImageRenderer(generateQRCode(content)));
         itemStack.setDurability(view.getId());
         p.getInventory().addItem(itemStack);
+        return itemStack;
         
     }
 

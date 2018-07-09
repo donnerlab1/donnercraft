@@ -7,5 +7,11 @@ commands:
     description: Get Invoice with memo from server usage /invoice amt memo
     usage: /invoice
   teleport:
-    description: Teleport steps with /teleport steps
+    description: Teleport steps forward with /teleport steps
     usage: /teleport
+  sell:
+    description: sell item with /sell payreq
+    usage: /sell
+  pay:
+    description: send a payment request to a player with /pay player payreq
+    usage: /pay

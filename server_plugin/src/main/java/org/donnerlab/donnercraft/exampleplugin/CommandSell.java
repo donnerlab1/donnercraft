@@ -5,10 +5,11 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.PlayerInventory;
 
-public class CommandTeleport implements CommandExecutor {
+public class CommandSell implements CommandExecutor {
+
     public ExamplePlugin server;
-
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if(sender instanceof Player) {
@@ -16,17 +17,18 @@ public class CommandTeleport implements CommandExecutor {
 
             if(args != null) {
                 if(args.length != 1) {
-                    player.sendMessage(ChatColor.RED + "wrond Command: use /teleport steps");
+                    player.sendMessage(ChatColor.RED + "wrond Command: use /sell payreq");
                 }
-                server.AddTeleportRequest(Integer.parseInt(args[0]), player);
-
-
+                PlayerInventory inv = player.getInventory();
+                System.out.println(inv.getItemInHand().toString());
+                //String payReq = server.lndRpc.getPaymentRequest(args[1], Integer.parseInt(args[0]));
+                //player.sendMessage(payReq);
             }
         }
         return true;
     }
 
-    public CommandTeleport(ExamplePlugin server) {
+    public CommandSell(ExamplePlugin server){
         this.server = server;
     }
 }
