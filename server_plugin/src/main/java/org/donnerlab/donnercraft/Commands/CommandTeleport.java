@@ -1,13 +1,14 @@
-package org.donnerlab.donnercraft.exampleplugin;
+package org.donnerlab.donnercraft.Commands;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.donnerlab.donnercraft.DonnerCraftPlugin;
 
-public class CommandTeleport implements CommandExecutor {
-    ExamplePlugin server;
+public class CommandTeleport implements CommandExecutor, CallbackCommand {
+    DonnerCraftPlugin server;
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -26,7 +27,12 @@ public class CommandTeleport implements CommandExecutor {
         return true;
     }
 
-    public CommandTeleport(ExamplePlugin server) {
+    public CommandTeleport(DonnerCraftPlugin server) {
         this.server = server;
+    }
+
+    @Override
+    public void Execute() {
+
     }
 }

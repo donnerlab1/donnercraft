@@ -1,4 +1,4 @@
-package org.donnerlab.donnercraft.exampleplugin;
+package org.donnerlab.donnercraft;
 
 import io.grpc.ManagedChannel;
 import io.grpc.netty.GrpcSslContexts;
@@ -9,8 +9,8 @@ import io.netty.handler.ssl.SslProvider;
 import lnrpc.LightningGrpc;
 import lnrpc.Rpc;
 import org.apache.commons.codec.binary.Hex;
-import lnrpc.Rpc.*;
-import javax.rmi.CORBA.Stub;
+import org.donnerlab.donnercraft.Utility.MacaroonCallCredential;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;

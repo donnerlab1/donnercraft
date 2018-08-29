@@ -1,4 +1,4 @@
-package org.donnerlab.donnercraft.exampleplugin;
+package org.donnerlab.donnercraft.Utility;
 
 import org.bukkit.entity.Player;
 import org.bukkit.map.MapCanvas;
@@ -22,7 +22,7 @@ public class ImageRenderer extends MapRenderer {
         hasRendered = true;
     }
 
-    ImageRenderer(Image image) {
+    public ImageRenderer(Image image) {
         this.image = image;
     }
 }

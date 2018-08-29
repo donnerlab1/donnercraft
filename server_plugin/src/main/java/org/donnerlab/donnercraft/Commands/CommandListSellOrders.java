@@ -1,15 +1,15 @@
-package org.donnerlab.donnercraft.exampleplugin;
+package org.donnerlab.donnercraft.Commands;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.PlayerInventory;
+import org.donnerlab.donnercraft.DonnerCraftPlugin;
 
 public class CommandListSellOrders implements CommandExecutor {
 
-    ExamplePlugin server;
+    DonnerCraftPlugin server;
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if(sender instanceof Player) {
@@ -27,7 +27,7 @@ public class CommandListSellOrders implements CommandExecutor {
         return true;
     }
 
-    public CommandListSellOrders(ExamplePlugin server){
+    public CommandListSellOrders(DonnerCraftPlugin server){
         this.server = server;
     }
 }

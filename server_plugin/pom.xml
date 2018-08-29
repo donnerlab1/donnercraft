@@ -5,11 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.donnerlab.donnercraft</groupId>
-    <artifactId>example-plugin</artifactId>
+    <artifactId>donnercraft</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>Example Plugin</name>
+    <name>Donnercraft</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

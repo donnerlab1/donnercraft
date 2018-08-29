@@ -1,4 +1,4 @@
-package org.donnerlab.donnercraft.exampleplugin;
+package org.donnerlab.donnercraft.Commands;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -6,9 +6,10 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.donnerlab.donnercraft.DonnerCraftPlugin;
 
 public class CommandPay implements CommandExecutor {
-    ExamplePlugin server;
+    DonnerCraftPlugin server;
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if(sender instanceof Player) {
@@ -27,5 +28,5 @@ public class CommandPay implements CommandExecutor {
         return true;
     }
 
-    public CommandPay(ExamplePlugin server){this.server=server;}
+    public CommandPay(DonnerCraftPlugin server){this.server=server;}
 }

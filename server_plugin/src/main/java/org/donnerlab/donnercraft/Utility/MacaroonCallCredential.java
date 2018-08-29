@@ -1,4 +1,4 @@
-package org.donnerlab.donnercraft.exampleplugin;
+package org.donnerlab.donnercraft.Utility;
 
 import io.grpc.*;
 
@@ -7,7 +7,7 @@ import java.util.concurrent.Executor;
 public class MacaroonCallCredential implements CallCredentials {
     private final String macaroon;
 
-    MacaroonCallCredential(String macaroon) {
+    public MacaroonCallCredential(String macaroon) {
         this.macaroon = macaroon;
     }
 

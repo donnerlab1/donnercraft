@@ -1,4 +1,4 @@
-package org.donnerlab.donnercraft.exampleplugin;
+package org.donnerlab.donnercraft;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;

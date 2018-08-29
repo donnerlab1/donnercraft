@@ -1,6 +1,6 @@
-name: ExamplePlugin
+name: DonnerCraftPlugin
 version: ${project.version}
-main: org.donnerlab.donnercraft.exampleplugin.ExamplePlugin
+main: org.donnerlab.donnercraft.DonnerCraftPlugin
 author: donnerlab
 commands:
   invoice:
@@ -24,3 +24,6 @@ commands:
   claim:
     description: claim sellorder
     usage: /claim
+  register:
+    description: register on server
+    usage: /register

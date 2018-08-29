@@ -1,4 +1,4 @@
-package org.donnerlab.donnercraft.exampleplugin;
+package org.donnerlab.donnercraft;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -13,6 +13,7 @@ import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import org.bukkit.map.MapView;
+import org.donnerlab.donnercraft.Utility.ImageRenderer;
 
 
 class QRMapSpawner {

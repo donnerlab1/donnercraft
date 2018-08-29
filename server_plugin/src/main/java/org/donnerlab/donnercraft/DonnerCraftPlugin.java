@@ -1,4 +1,4 @@
-package org.donnerlab.donnercraft.exampleplugin;
+package org.donnerlab.donnercraft;
 
 import io.grpc.stub.StreamObserver;
 import org.bukkit.Location;
@@ -13,29 +13,26 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import lnrpc.Rpc.*;
 import org.bukkit.util.Vector;
+import org.donnerlab.donnercraft.Commands.*;
+import org.donnerlab.donnercraft.Utility.Sha;
 
-import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
-public final class ExamplePlugin extends JavaPlugin implements Listener {
+public final class DonnerCraftPlugin extends JavaPlugin implements Listener {
 
 
     public LndRpc lndRpc;
 
     private Map<String, PlayerCommandPayload> commandPayloadMap;
     private List<SellOrder> sellOrders;
+    private Map<String,PlayerInfo> registeredPlayers;
     @Override
     public void onEnable() {
         commandPayloadMap = new HashMap<>();
         sellOrders = new LinkedList<>();
-        SetupRpc();
-        getCommand("invoice").setExecutor(new CommandInvoice(this));
-        getCommand("teleport").setExecutor(new CommandTeleport(this));
-        getCommand("sell").setExecutor(new CommandSell(this));
-        getCommand("pay").setExecutor(new CommandPay(this));
-        getCommand("listsellorders").setExecutor(new CommandListSellOrders(this));
-        getCommand("getsellorder").setExecutor(new CommandGetSellOrder(this));
-        getCommand("claim").setExecutor(new CommandClaim(this));
+        registeredPlayers = new HashMap<>();
+        setupRpc();
+        setupCommands();
         GetInfoResponse response = lndRpc.blockingStub.getInfo(GetInfoRequest.getDefaultInstance());
         System.out.println(response.getIdentityPubkey());
 
@@ -58,7 +55,7 @@ public final class ExamplePlugin extends JavaPlugin implements Listener {
         e.setQuitMessage(player.getName() + " has quit the server :/");
     }
 
-    public void SetupRpc() {
+    private void setupRpc() {
         lndRpc = new LndRpc();
         System.out.println(lndRpc.getPaymentRequest("test", 2));
         lndRpc.subscribeInvoices(new StreamObserver<Invoice>() {
@@ -70,21 +67,31 @@ public final class ExamplePlugin extends JavaPlugin implements Listener {
                     System.out.println("found invoice");
 
                     switch(commandPayloadMap.get(invoice.getPaymentRequest()).commandType) {
-                        case("teleport"):
+                        case("teleport"): {
                             Player p = commandPayloadMap.get(invoice.getPaymentRequest()).sender;
                             p.getInventory().remove(commandPayloadMap.get(invoice.getPaymentRequest()).qrMap);
                             Location loc = p.getLocation();
                             Vector dir = loc.getDirection();
                             dir.normalize();
-                            dir.multiply((int)invoice.getValue() / 5); //5 blocks a way
+                            dir.multiply((int) invoice.getValue() / 5); //5 blocks a way
                             loc.add(dir);
-                            p.teleport(loc );
+                            p.teleport(loc);
                             break;
-                        case("sell"):
+                        }
+                        case("sell"): {
                             Player recipient = commandPayloadMap.get(invoice.getPaymentRequest()).recipient;
                             recipient.getInventory().remove(commandPayloadMap.get(invoice.getPaymentRequest()).qrMap);
                             Player sender = commandPayloadMap.get(invoice.getPaymentRequest()).sender;
                             sender.sendMessage(recipient.getDisplayName() + " paid your invoice");
+                            break;
+                        }
+                        case("register"): {
+                            Player p = commandPayloadMap.get(invoice.getPaymentRequest()).sender;
+                            registeredPlayers.put(p.getDisplayName(),new PlayerInfo(p));
+                            p.getInventory().remove(commandPayloadMap.get(invoice.getPaymentRequest()).qrMap);
+                            p.sendMessage("successfully registerd");
+                            break;
+                        }
                     }}
             }
 
@@ -100,6 +107,17 @@ public final class ExamplePlugin extends JavaPlugin implements Listener {
         });
     }
 
+   private void setupCommands() {
+
+        getCommand("invoice").setExecutor(new CommandInvoice(this));
+        getCommand("teleport").setExecutor(new CommandTeleport(this));
+        getCommand("sell").setExecutor(new CommandSell(this));
+        getCommand("pay").setExecutor(new CommandPay(this));
+        getCommand("listsellorders").setExecutor(new CommandListSellOrders(this));
+        getCommand("getsellorder").setExecutor(new CommandGetSellOrder(this));
+        getCommand("claim").setExecutor(new CommandClaim(this));
+        getCommand("register").setExecutor(new CommandRegister(this));
+    }
     public void AddTeleportRequest(int steps, Player p) {
         System.out.println("get teleport request for " + steps + " steps by "+  p.getName());
         String request = lndRpc.getPaymentRequest("teleport", steps*5);
@@ -107,6 +125,17 @@ public final class ExamplePlugin extends JavaPlugin implements Listener {
         PlayerCommandPayload payload = new PlayerCommandPayload(p, map,"teleport");
         commandPayloadMap.put(request, payload);
         p.sendMessage(request);
+    }
+    public void AddRegisterRequest(Player p) {
+        String request = lndRpc.getPaymentRequest("register;"+p.getName(), 1);
+        ItemStack map = QRMapSpawner.SpawnMap(p, request);
+        PlayerCommandPayload payload = new PlayerCommandPayload(p, map,"register");
+        commandPayloadMap.put(request, payload);
+        p.sendMessage(request);
+    }
+
+    public void AddPubkeyRequest(Player p, String pubkey) {
+        registeredPlayers.get(p.getDisplayName()).pubkey = pubkey;
     }
 
     public void AddPlayerPayRequest(Player sender, Player recipient, String payReq) {
@@ -117,18 +146,21 @@ public final class ExamplePlugin extends JavaPlugin implements Listener {
 
     }
 
-    public void AddSellOrderRequest(Player sender, String payReq, ItemStack item) {
-        sellOrders.add(new SellOrder(item, payReq));
-
+    public void AddSellOrderRequest(Player sender, String payReq, ItemStack item, boolean isPublic) {
+        sellOrders.add(new SellOrder(item, payReq, isPublic));
         sender.getInventory().remove(item);
-
+        if(!isPublic){
+            QRMapSpawner.SpawnMap(sender, payReq);
+        }
     }
+
+
 
     public void listSellOrders(Player sender){
         if(sellOrders.size() >= 0) {
             for (int i = 0; i < sellOrders.size(); i++) {
                 SellOrder temp = sellOrders.get(i);
-                if (!temp.claimed)
+                if (!temp.claimed && temp.isPublic)
                  sender.sendMessage(i + " item: " + temp.item + " cost: " + lndRpc.blockingStub.decodePayReq(PayReqString.newBuilder().setPayReq(temp.payReq).build()).getNumSatoshis());
             }
         }

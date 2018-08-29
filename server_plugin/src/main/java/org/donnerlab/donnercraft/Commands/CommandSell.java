@@ -1,4 +1,4 @@
-package org.donnerlab.donnercraft.exampleplugin;
+package org.donnerlab.donnercraft.Commands;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -6,10 +6,11 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.PlayerInventory;
+import org.donnerlab.donnercraft.DonnerCraftPlugin;
 
 public class CommandSell implements CommandExecutor {
 
-    ExamplePlugin server;
+    DonnerCraftPlugin server;
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if(sender instanceof Player) {
@@ -17,18 +18,22 @@ public class CommandSell implements CommandExecutor {
 
             if(args != null) {
                 if(args.length != 1) {
-                    player.sendMessage(ChatColor.RED + "wrond Command: use /sell payreq");
+                    player.sendMessage(ChatColor.RED + "wrond Command: use /sell payreq or /sell private payreq");
                 }
                 PlayerInventory inv = player.getInventory();
                 //String payReq = server.lndRpc.getPaymentRequest(args[1], Integer.parseInt(args[0]));
                 //player.sendMessage(payReq);
-                server.AddSellOrderRequest(player, args[0], inv.getItemInMainHand());
+                if(args.length == 1) {
+                    server.AddSellOrderRequest(player, args[0], inv.getItemInMainHand(), true);
+                } else if(args.length == 2) {
+                    server.AddSellOrderRequest(player, args[1], inv.getItemInMainHand(), false);
+                }
             }
         }
         return true;
     }
 
-    public CommandSell(ExamplePlugin server){
+    public CommandSell(DonnerCraftPlugin server){
         this.server = server;
     }
 }
