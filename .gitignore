@@ -92,6 +92,7 @@ fabric.properties
 
 spigot_server/
 
+**/world
 ### Maven ###
 target/
 pom.xml.tag
