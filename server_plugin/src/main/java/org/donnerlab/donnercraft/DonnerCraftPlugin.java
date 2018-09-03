@@ -112,11 +112,11 @@ public final class DonnerCraftPlugin extends JavaPlugin implements Listener {
         getCommand("invoice").setExecutor(new CommandInvoice(this));
         getCommand("teleport").setExecutor(new CommandTeleport(this));
         getCommand("sell").setExecutor(new CommandSell(this));
-        getCommand("pay").setExecutor(new CommandPay(this));
+        //getCommand("pay").setExecutor(new CommandPay(this));
         getCommand("listsellorders").setExecutor(new CommandListSellOrders(this));
         getCommand("getsellorder").setExecutor(new CommandGetSellOrder(this));
         getCommand("claim").setExecutor(new CommandClaim(this));
-        getCommand("register").setExecutor(new CommandRegister(this));
+        //getCommand("register").setExecutor(new CommandRegister(this));
     }
     public void AddTeleportRequest(int steps, Player p) {
         System.out.println("get teleport request for " + steps + " steps by "+  p.getName());
@@ -147,11 +147,20 @@ public final class DonnerCraftPlugin extends JavaPlugin implements Listener {
     }
 
     public void AddSellOrderRequest(Player sender, String payReq, ItemStack item, boolean isPublic) {
+        if(!checksellorder(payReq))
+            return;
         sellOrders.add(new SellOrder(item, payReq, isPublic));
         sender.getInventory().remove(item);
         if(!isPublic){
             QRMapSpawner.SpawnMap(sender, payReq);
         }
+    }
+
+    boolean checksellorder(String payReq) {
+        PayReq decodePayReq = lndRpc.blockingStub.decodePayReq(PayReqString.newBuilder().setPayReq(payReq).build());
+        if(decodePayReq.isInitialized())
+            return true;
+        return false;
     }
 
 
