@@ -35,19 +35,28 @@ public final class DonnerCraftPlugin extends JavaPlugin implements Listener {
 
 
     File homeFile;
+    File lndFile;
     FileConfiguration  cfg;
+    FileConfiguration lndCfg;
 
     @Override
     public void onEnable() {
         commandPayloadMap = new HashMap<>();
         sellOrders = new LinkedList<>();
         registeredPlayers = new HashMap<>();
+
+        homeFile = new File("plugins/Donnercraft","homes.yml");
+        cfg = YamlConfiguration.loadConfiguration(homeFile);
+        cfg.set("test" + "." + "test2"+".world",0);
+
+        lndFile = new File("plugins/Donnercraft","lnd.yml");
+        lndCfg = YamlConfiguration.loadConfiguration(lndFile);
+
         setupRpc();
         setupCommands();
         GetInfoResponse response = lndRpc.blockingStub.getInfo(GetInfoRequest.getDefaultInstance());
         System.out.println(response.getIdentityPubkey());
-        homeFile = new File("plugins/Donnercraft","homes.yml");
-        cfg = YamlConfiguration.loadConfiguration(homeFile);
+
     }
 
     @Override
@@ -67,7 +76,13 @@ public final class DonnerCraftPlugin extends JavaPlugin implements Listener {
     }
 
     private void setupRpc() {
-        lndRpc = new LndRpc();
+        try {
+            lndCfg.load(lndFile);
+        } catch (IOException | InvalidConfigurationException e) {
+            e.printStackTrace();
+        }
+        System.out.println(lndCfg.getString("rpc.hostname") + " " + lndCfg.getInt("rpc.port"));
+        lndRpc = new LndRpc(lndCfg.getString("rpc.hostname"),lndCfg.getInt("rpc.port"));
         System.out.println(lndRpc.getPaymentRequest("test", 2));
         lndRpc.subscribeInvoices(new StreamObserver<Invoice>() {
 
@@ -229,7 +244,7 @@ public final class DonnerCraftPlugin extends JavaPlugin implements Listener {
     public void AddChannelRequest(Player p) {
         String content="";
         content+=lndRpc.blockingStub.getInfo(GetInfoRequest.getDefaultInstance()).getIdentityPubkey();
-        content+="@donnerlab.com"+":9735";
+        content+="@"+lndCfg.getString("info.externalip")+":"+lndCfg.getString("info.externalport");
         QRMapSpawner.SpawnMap(p,content);
         p.sendMessage(content);
     }

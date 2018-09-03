@@ -19,13 +19,15 @@ import java.nio.file.Paths;
 public class LndRpc {
     private static final String CERT_PATH = "tls.cert";
     private static final String MACAROON_PATH = "admin.macaroon";
-    private static final String HOST = "localhost";
+    private static String host ;
 
-    private static final int PORT = 10009;
+    private static int port;
 
     public LightningGrpc.LightningBlockingStub blockingStub;
     public LightningGrpc.LightningStub asyncStub;
-    public LndRpc() {
+    public LndRpc(String host, int port) {
+        this.host =host;
+        this.port = port;
 
         SslContext sslContext = null;
         try {
@@ -33,7 +35,7 @@ public class LndRpc {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        NettyChannelBuilder channelBuilder = NettyChannelBuilder.forAddress(HOST, PORT);
+        NettyChannelBuilder channelBuilder = NettyChannelBuilder.forAddress(host, port);
         ManagedChannel channel = channelBuilder.sslContext(sslContext).build();
 
         System.out.println("done");
