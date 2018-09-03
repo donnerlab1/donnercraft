@@ -1,7 +1,9 @@
 package org.donnerlab.donnercraft;
 
 import io.grpc.stub.StreamObserver;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -102,22 +104,45 @@ public final class DonnerCraftPlugin extends JavaPlugin implements Listener {
                             break;
                         }
                         case("sethome"): {
+                            Player p = commandPayloadMap.get(invoice.getPaymentRequest()).sender;
+                            p.getInventory().remove(commandPayloadMap.get(invoice.getPaymentRequest()).qrMap);
                             String[] parts = invoice.getMemo().split(";");
-                            cfg.set(parts[0] + "." + parts[1]+".world",parts[2]);
-                            cfg.set(parts[0] + "." + parts[1]+".x",parts[3]);
-                            cfg.set(parts[0] + "." + parts[1]+".y",parts[4]);
-                            cfg.set(parts[0] + "." + parts[1]+".z",parts[5]);
-                            cfg.set(parts[0] + "." + parts[1]+".yaw",parts[6]);
-                            cfg.set(parts[0] + "." + parts[1]+".pitch",parts[7]);
+                            cfg.set(parts[1] + "." + parts[2]+".world",parts[3]);
+                            cfg.set(parts[1] + "." + parts[2]+".x",Double.parseDouble(parts[4]));
+                            cfg.set(parts[1] + "." + parts[2]+".y",Double.parseDouble(parts[5]));
+                            cfg.set(parts[1] + "." + parts[2]+".z",Double.parseDouble(parts[6]));
+                            cfg.set(parts[1] + "." + parts[2]+".yaw",Double.parseDouble(parts[7]));
+                            cfg.set(parts[1] + "." + parts[2]+".pitch",Double.parseDouble(parts[8]));
                             try{
                                 cfg.save(homeFile);
                             }
                             catch (IOException e) {
                                 e.printStackTrace();
                             }
+                            p.sendMessage("home "+parts[2]+" saved");
                             break;
                         }
                         case("home"): {
+                            try {
+                                cfg.load(homeFile);
+                            } catch (IOException | InvalidConfigurationException e) {
+                                e.printStackTrace();
+                            }
+                            Player p = commandPayloadMap.get(invoice.getPaymentRequest()).sender;
+                            p.getInventory().remove(commandPayloadMap.get(invoice.getPaymentRequest()).qrMap);
+                            String[] parts = invoice.getMemo().split(";");
+                            String world = cfg.getString(parts[1]+"."+parts[2]+".world");
+                            double x = cfg.getDouble(parts[1]+"."+parts[2]+".x");
+                            double y = cfg.getDouble(parts[1]+"."+parts[2]+".y");
+                            double z = cfg.getDouble(parts[1]+"."+parts[2]+".z");
+                            double yaw = cfg.getDouble(parts[1]+"."+parts[2]+".yaw");
+                            double pitch = cfg.getDouble(parts[1]+"."+parts[2]+".pitch");
+
+                            Location loc = new Location(Bukkit.getWorld(world), x, y,z);
+                            loc.setPitch((float) pitch);
+                            loc.setYaw((float) yaw);
+                            p.teleport(loc);
+                            p.sendMessage("teleported to " + parts[2]);
                             break;
                         }
                     }}
@@ -147,6 +172,8 @@ public final class DonnerCraftPlugin extends JavaPlugin implements Listener {
         //getCommand("register").setExecutor(new CommandRegister(this));
        getCommand("home").setExecutor(new CommandHome(this));
        getCommand("sethome").setExecutor(new CommandSetHome(this));
+
+       getCommand("channel").setExecutor(new CommandChannel(this));
     }
     public void AddTeleportRequest(int steps, Player p) {
         System.out.println("get teleport request for " + steps + " steps by "+  p.getName());
@@ -164,8 +191,13 @@ public final class DonnerCraftPlugin extends JavaPlugin implements Listener {
         p.sendMessage(request);
     }
 
-    public void AddSetHomeRequest(Player p,String homename, String world, double x, double y, double z, double pitch, double yaw) {
-        if(cfg.contains(homename)) {
+    public void AddSetHomeRequest(Player p,String homename, String world, double x, double y, double z, float pitch, float yaw) {
+        try {
+            cfg.load(homeFile);
+        } catch (IOException | InvalidConfigurationException e) {
+            e.printStackTrace();
+        }
+        if(cfg.isSet(p.getName()+"."+homename+".world")) {
             p.sendMessage("the home already exists");
             return;
         }
@@ -175,11 +207,32 @@ public final class DonnerCraftPlugin extends JavaPlugin implements Listener {
         commandPayloadMap.put(request,payload);
         p.sendMessage(request);
     }
-
+    public void AddHomeRequest(Player p, String homename) {
+        try {
+            cfg.load(homeFile);
+        } catch (IOException | InvalidConfigurationException e) {
+            e.printStackTrace();
+        }
+        if(!cfg.isSet(p.getName()+"."+homename+".world")) {
+            p.sendMessage("the home does not exist");
+            return;
+        }
+        String request = lndRpc.getPaymentRequest("home;"+p.getName()+";"+homename,10);
+        ItemStack map = QRMapSpawner.SpawnMap(p, request);
+        PlayerCommandPayload payload = new PlayerCommandPayload(p,map,"home");
+        commandPayloadMap.put(request,payload);
+        p.sendMessage(request);
+    }
     public void AddPubkeyRequest(Player p, String pubkey) {
         registeredPlayers.get(p.getDisplayName()).pubkey = pubkey;
     }
-
+    public void AddChannelRequest(Player p) {
+        String content="";
+        content+=lndRpc.blockingStub.getInfo(GetInfoRequest.getDefaultInstance()).getIdentityPubkey();
+        content+="@donnerlab.com"+":9735";
+        QRMapSpawner.SpawnMap(p,content);
+        p.sendMessage(content);
+    }
     public void AddPlayerPayRequest(Player sender, Player recipient, String payReq) {
         ItemStack map = QRMapSpawner.SpawnMap(recipient, payReq);
         PlayerCommandPayload payload = new PlayerCommandPayload(sender, map, "sell", recipient);

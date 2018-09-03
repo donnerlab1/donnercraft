@@ -28,8 +28,11 @@ commands:
     description: INACTIVE register on server
     usage: /register
   home:
-    description: teleports home (price dependand on distance)
+    description: teleports home
     usage: /home [name]
   sethome:
     description: sets new home
     usage: /sethome [name]
+  channel:
+    description: shows channel information
+    usage: /channel

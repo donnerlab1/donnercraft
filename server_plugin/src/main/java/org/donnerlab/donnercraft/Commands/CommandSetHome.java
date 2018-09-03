@@ -25,8 +25,8 @@ public class CommandSetHome implements CommandExecutor {
             double x = p.getLocation().getX();
             double y = p.getLocation().getY();
             double z = p.getLocation().getZ();
-            double yaw = p.getLocation().getYaw();
-            double pitch = p.getLocation().getPitch();
+            float yaw = p.getLocation().getYaw();
+            float pitch = p.getLocation().getPitch();
             plugin.AddSetHomeRequest(p,args[0],world,x,y,z,pitch,yaw);
         } else {
             p.sendMessage("§c/sethome [name] ");
