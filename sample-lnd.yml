@@ -1,0 +1,7 @@
+rpc:
+  hostname : localhost
+  port: 10009
+info:
+  externalip : '192.168.178.32'
+  externalport: '9735'
+
