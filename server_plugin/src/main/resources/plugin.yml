@@ -4,7 +4,7 @@ main: org.donnerlab.donnercraft.DonnerCraftPlugin
 author: donnerlab
 commands:
   invoice:
-    description: [deactivated] Get Invoice with memo from server usage /invoice amt memo
+    description: INACTIVE Get Invoice with memo from server usage /invoice amt memo
     usage: /invoice
   teleport:
     description: Teleport steps forward with /teleport steps
@@ -13,7 +13,7 @@ commands:
     description: sell item with /sell payreq
     usage: /sell
   pay:
-    description: [deactivated] send a payment request to a player with /pay player payreq
+    description: INACTIVE send a payment request to a player with /pay player payreq
     usage: /pay
   listsellorders:
     description: list sellorders
@@ -25,5 +25,11 @@ commands:
     description: claim sellorder
     usage: /claim
   register:
-    description: [deactivated] register on server
+    description: INACTIVE register on server
     usage: /register
+  home:
+    description: teleports home (price dependand on distance)
+    usage: /home [name]
+  sethome:
+    description: sets new home
+    usage: /sethome [name]

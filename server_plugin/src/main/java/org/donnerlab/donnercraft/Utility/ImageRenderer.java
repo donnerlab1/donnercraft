@@ -15,10 +15,11 @@ public class ImageRenderer extends MapRenderer {
     @Override
     public void render(MapView map, MapCanvas canvas, Player player) {
     	if (hasRendered)
-    		return;
+    		//return;
 
-    	canvas.drawText(0, 0, MinecraftFont.Font, "Scan this Invoice to Pay");
-        canvas.drawImage(0,8, image);
+    	//canvas.drawText(0, 0, MinecraftFont.Font, "Scan this Invoice to Pay");
+
+        canvas.drawImage(0,0, image);
         hasRendered = true;
     }
 

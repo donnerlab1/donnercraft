@@ -32,7 +32,7 @@ class QRMapSpawner {
     private static BufferedImage generateQRCode(String content) {
         QRCodeWriter qrCodeWriter = new QRCodeWriter();
         try {
-            BitMatrix bitMatrix = qrCodeWriter.encode(content, BarcodeFormat.QR_CODE, 128, 120);
+            BitMatrix bitMatrix = qrCodeWriter.encode(content, BarcodeFormat.QR_CODE, 128, 128);
             return MatrixToImageWriter.toBufferedImage(bitMatrix);
         } catch (WriterException e){
         	e.printStackTrace();

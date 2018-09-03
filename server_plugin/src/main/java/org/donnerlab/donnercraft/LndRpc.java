@@ -18,7 +18,7 @@ import java.nio.file.Paths;
 
 public class LndRpc {
     private static final String CERT_PATH = "tls.cert";
-    private static final String MACAROON_PATH = "./admin.macaroon";
+    private static final String MACAROON_PATH = "admin.macaroon";
     private static final String HOST = "localhost";
 
     private static final int PORT = 10009;

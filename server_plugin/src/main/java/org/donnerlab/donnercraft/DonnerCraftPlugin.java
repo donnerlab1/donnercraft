@@ -2,6 +2,8 @@ package org.donnerlab.donnercraft;
 
 import io.grpc.stub.StreamObserver;
 import org.bukkit.Location;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -16,6 +18,8 @@ import org.bukkit.util.Vector;
 import org.donnerlab.donnercraft.Commands.*;
 import org.donnerlab.donnercraft.Utility.Sha;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 public final class DonnerCraftPlugin extends JavaPlugin implements Listener {
@@ -26,6 +30,11 @@ public final class DonnerCraftPlugin extends JavaPlugin implements Listener {
     private Map<String, PlayerCommandPayload> commandPayloadMap;
     private List<SellOrder> sellOrders;
     private Map<String,PlayerInfo> registeredPlayers;
+
+
+    File homeFile;
+    FileConfiguration  cfg;
+
     @Override
     public void onEnable() {
         commandPayloadMap = new HashMap<>();
@@ -35,8 +44,8 @@ public final class DonnerCraftPlugin extends JavaPlugin implements Listener {
         setupCommands();
         GetInfoResponse response = lndRpc.blockingStub.getInfo(GetInfoRequest.getDefaultInstance());
         System.out.println(response.getIdentityPubkey());
-
-
+        homeFile = new File("plugins/Donnercraft","homes.yml");
+        cfg = YamlConfiguration.loadConfiguration(homeFile);
     }
 
     @Override
@@ -92,6 +101,25 @@ public final class DonnerCraftPlugin extends JavaPlugin implements Listener {
                             p.sendMessage("successfully registerd");
                             break;
                         }
+                        case("sethome"): {
+                            String[] parts = invoice.getMemo().split(";");
+                            cfg.set(parts[0] + "." + parts[1]+".world",parts[2]);
+                            cfg.set(parts[0] + "." + parts[1]+".x",parts[3]);
+                            cfg.set(parts[0] + "." + parts[1]+".y",parts[4]);
+                            cfg.set(parts[0] + "." + parts[1]+".z",parts[5]);
+                            cfg.set(parts[0] + "." + parts[1]+".yaw",parts[6]);
+                            cfg.set(parts[0] + "." + parts[1]+".pitch",parts[7]);
+                            try{
+                                cfg.save(homeFile);
+                            }
+                            catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            break;
+                        }
+                        case("home"): {
+                            break;
+                        }
                     }}
             }
 
@@ -117,6 +145,8 @@ public final class DonnerCraftPlugin extends JavaPlugin implements Listener {
         getCommand("getsellorder").setExecutor(new CommandGetSellOrder(this));
         getCommand("claim").setExecutor(new CommandClaim(this));
         //getCommand("register").setExecutor(new CommandRegister(this));
+       getCommand("home").setExecutor(new CommandHome(this));
+       getCommand("sethome").setExecutor(new CommandSetHome(this));
     }
     public void AddTeleportRequest(int steps, Player p) {
         System.out.println("get teleport request for " + steps + " steps by "+  p.getName());
@@ -131,6 +161,18 @@ public final class DonnerCraftPlugin extends JavaPlugin implements Listener {
         ItemStack map = QRMapSpawner.SpawnMap(p, request);
         PlayerCommandPayload payload = new PlayerCommandPayload(p, map,"register");
         commandPayloadMap.put(request, payload);
+        p.sendMessage(request);
+    }
+
+    public void AddSetHomeRequest(Player p,String homename, String world, double x, double y, double z, double pitch, double yaw) {
+        if(cfg.contains(homename)) {
+            p.sendMessage("the home already exists");
+            return;
+        }
+        String request = lndRpc.getPaymentRequest("sethome;"+p.getName()+";"+homename+";"+world+";"+x+";"+y+";"+z+";"+pitch+";"+yaw, 50);
+        ItemStack map = QRMapSpawner.SpawnMap(p, request);
+        PlayerCommandPayload payload = new PlayerCommandPayload(p,map,"sethome");
+        commandPayloadMap.put(request,payload);
         p.sendMessage(request);
     }
 
