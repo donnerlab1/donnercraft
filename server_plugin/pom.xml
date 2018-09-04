@@ -93,10 +93,20 @@
             <id>mavencentral</id>
             <url>http://central.maven.org/maven2//</url>
         </repository>
+        <repository>
+            <id>rayzr-repo</id>
+            <url>https://cdn.rawgit.com/Rayzr522/maven-repo/master/</url>
+        </repository>
     </repositories>
 
     <dependencies>
         <dependency>
+            <groupId>me.rayzr522</groupId>
+            <artifactId>jsonmessage</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
             <version>1.12.1-R0.1-SNAPSHOT</version>

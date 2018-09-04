@@ -42,3 +42,4 @@ commands:
   emerald:
     description: buys emerald from server (100 sat per emerald)
     usage: /emerald [count]
+

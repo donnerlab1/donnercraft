@@ -1,6 +1,8 @@
 package org.donnerlab.donnercraft;
 
+
 import io.grpc.stub.StreamObserver;
+import me.rayzr522.jsonmessage.JSONMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -24,9 +26,11 @@ import org.bukkit.util.Vector;
 import org.donnerlab.donnercraft.Commands.*;
 import org.donnerlab.donnercraft.Utility.Sha;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.List;
 
 public final class DonnerCraftPlugin extends JavaPlugin implements Listener {
 
@@ -381,6 +385,19 @@ public final class DonnerCraftPlugin extends JavaPlugin implements Listener {
             }
         }
     }
+    /*
+    public void expireOrders() {
+        Set<String> keys = sellOrderCfg.getKeys(false);
+        List<String> keyList = new ArrayList<String>(keys);
+        if(keyList.size()> 0 ){
+            for (int i = 0; i < keyList.size(); i++) {
+                SellOrder temp = (SellOrder) sellOrderCfg.get(keyList.get(i));
+                lndRpc.blockingStub.decodePayReq(PayReqString.newBuilder().setPayReq(temp.payReq).build()).
+                if (!temp.claimed && temp.isPublic)
+                    sender.sendMessage(i + " item: " + temp.item + " cost: " + lndRpc.blockingStub.decodePayReq(PayReqString.newBuilder().setPayReq(temp.payReq).build()).getNumSatoshis());
+            }
+        }
+    }*/
 
     public void DbListSellOrders(Player sender) {
         Set<String> keys = sellOrderCfg.getKeys(false);
@@ -388,11 +405,20 @@ public final class DonnerCraftPlugin extends JavaPlugin implements Listener {
         if(keyList.size()> 0 ){
             for (int i = 0; i < keyList.size(); i++) {
                 SellOrder temp = (SellOrder) sellOrderCfg.get(keyList.get(i));
-                if (!temp.claimed && temp.isPublic)
-                    sender.sendMessage(i + " item: " + temp.item + " cost: " + lndRpc.blockingStub.decodePayReq(PayReqString.newBuilder().setPayReq(temp.payReq).build()).getNumSatoshis());
+                if (!temp.claimed && temp.isPublic) {
+
+                    String text = i + " item: " + temp.item + " cost: " + lndRpc.blockingStub.decodePayReq(PayReqString.newBuilder().setPayReq(temp.payReq).build()).getNumSatoshis();
+
+                    JSONMessage.create(text)
+                            .color(ChatColor.GOLD)
+                            .runCommand("/getsellorder "+ i).send(sender);
+                }
+
             }
         }
     }
+
+
     public void DBgetSellOrder(Player sender, int number) {
         Set<String> keys = sellOrderCfg.getKeys(false);
         List<String> keyList = new ArrayList<String>(keys);
