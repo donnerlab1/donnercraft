@@ -4,9 +4,12 @@ import io.grpc.stub.StreamObserver;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -32,28 +35,34 @@ public final class DonnerCraftPlugin extends JavaPlugin implements Listener {
 
     private Map<String, PlayerCommandPayload> commandPayloadMap;
     private Map<String,String> partialInvoiceMap;
-    private List<SellOrder> sellOrders;
+    //private List<SellOrder> sellOrders;
     private Map<String,PlayerInfo> registeredPlayers;
 
 
     File homeFile;
     File lndFile;
-    FileConfiguration  cfg;
+    File sellOrderFile;
+    FileConfiguration homeCfg;
     FileConfiguration lndCfg;
+    FileConfiguration sellOrderCfg;
 
     @Override
     public void onEnable() {
+        ConfigurationSerialization.registerClass(SellOrder.class);
         commandPayloadMap = new HashMap<>();
-        sellOrders = new LinkedList<>();
+        //sellOrders = new LinkedList<>();
         registeredPlayers = new HashMap<>();
         partialInvoiceMap = new HashMap<>();
 
         homeFile = new File("plugins/Donnercraft","homes.yml");
-        cfg = YamlConfiguration.loadConfiguration(homeFile);
-        cfg.set("test" + "." + "test2"+".world",0);
+        homeCfg = YamlConfiguration.loadConfiguration(homeFile);
+        homeCfg.set("test" + "." + "test2"+".world",0);
 
         lndFile = new File("plugins/Donnercraft","lnd.yml");
         lndCfg = YamlConfiguration.loadConfiguration(lndFile);
+
+        sellOrderFile = new File("plugins/Donnercraft","sellorders.yml");
+        sellOrderCfg = YamlConfiguration.loadConfiguration(sellOrderFile);
 
         setupRpc();
         setupCommands();
@@ -125,14 +134,14 @@ public final class DonnerCraftPlugin extends JavaPlugin implements Listener {
                             Player p = commandPayloadMap.get(invoice.getPaymentRequest()).sender;
                             p.getInventory().remove(commandPayloadMap.get(invoice.getPaymentRequest()).qrMap);
                             String[] parts = invoice.getMemo().split(";");
-                            cfg.set(parts[1] + "." + parts[2]+".world",parts[3]);
-                            cfg.set(parts[1] + "." + parts[2]+".x",Double.parseDouble(parts[4]));
-                            cfg.set(parts[1] + "." + parts[2]+".y",Double.parseDouble(parts[5]));
-                            cfg.set(parts[1] + "." + parts[2]+".z",Double.parseDouble(parts[6]));
-                            cfg.set(parts[1] + "." + parts[2]+".yaw",Double.parseDouble(parts[7]));
-                            cfg.set(parts[1] + "." + parts[2]+".pitch",Double.parseDouble(parts[8]));
+                            homeCfg.set(parts[1] + "." + parts[2]+".world",parts[3]);
+                            homeCfg.set(parts[1] + "." + parts[2]+".x",Double.parseDouble(parts[4]));
+                            homeCfg.set(parts[1] + "." + parts[2]+".y",Double.parseDouble(parts[5]));
+                            homeCfg.set(parts[1] + "." + parts[2]+".z",Double.parseDouble(parts[6]));
+                            homeCfg.set(parts[1] + "." + parts[2]+".yaw",Double.parseDouble(parts[7]));
+                            homeCfg.set(parts[1] + "." + parts[2]+".pitch",Double.parseDouble(parts[8]));
                             try{
-                                cfg.save(homeFile);
+                                homeCfg.save(homeFile);
                             }
                             catch (IOException e) {
                                 e.printStackTrace();
@@ -142,19 +151,19 @@ public final class DonnerCraftPlugin extends JavaPlugin implements Listener {
                         }
                         case("home"): {
                             try {
-                                cfg.load(homeFile);
+                                homeCfg.load(homeFile);
                             } catch (IOException | InvalidConfigurationException e) {
                                 e.printStackTrace();
                             }
                             Player p = commandPayloadMap.get(invoice.getPaymentRequest()).sender;
                             p.getInventory().remove(commandPayloadMap.get(invoice.getPaymentRequest()).qrMap);
                             String[] parts = invoice.getMemo().split(";");
-                            String world = cfg.getString(parts[1]+"."+parts[2]+".world");
-                            double x = cfg.getDouble(parts[1]+"."+parts[2]+".x");
-                            double y = cfg.getDouble(parts[1]+"."+parts[2]+".y");
-                            double z = cfg.getDouble(parts[1]+"."+parts[2]+".z");
-                            double yaw = cfg.getDouble(parts[1]+"."+parts[2]+".yaw");
-                            double pitch = cfg.getDouble(parts[1]+"."+parts[2]+".pitch");
+                            String world = homeCfg.getString(parts[1]+"."+parts[2]+".world");
+                            double x = homeCfg.getDouble(parts[1]+"."+parts[2]+".x");
+                            double y = homeCfg.getDouble(parts[1]+"."+parts[2]+".y");
+                            double z = homeCfg.getDouble(parts[1]+"."+parts[2]+".z");
+                            double yaw = homeCfg.getDouble(parts[1]+"."+parts[2]+".yaw");
+                            double pitch = homeCfg.getDouble(parts[1]+"."+parts[2]+".pitch");
 
                             Location loc = new Location(Bukkit.getWorld(world), x, y,z);
                             loc.setPitch((float) pitch);
@@ -212,11 +221,11 @@ public final class DonnerCraftPlugin extends JavaPlugin implements Listener {
 
     public void AddSetHomeRequest(Player p,String homename, String world, double x, double y, double z, float pitch, float yaw) {
         try {
-            cfg.load(homeFile);
+            homeCfg.load(homeFile);
         } catch (IOException | InvalidConfigurationException e) {
             e.printStackTrace();
         }
-        if(cfg.isSet(p.getName()+"."+homename+".world")) {
+        if(homeCfg.isSet(p.getName()+"."+homename+".world")) {
             p.sendMessage("the home already exists");
             return;
         }
@@ -226,22 +235,14 @@ public final class DonnerCraftPlugin extends JavaPlugin implements Listener {
         commandPayloadMap.put(request,payload);
         p.sendMessage(request);
     }
-    public void getMySellOorders(Player p) {
-        for (int i = sellOrders.size() - 1; i >= 0; i--) {
-            if(sellOrders.get(i).player == p) {
-                ItemStack item = sellOrders.get(i).item;
-                sellOrders.get(i).claimed = true;
-                p.getInventory().addItem(item);
-            }
-        }
-    }
+
     public void AddHomeRequest(Player p, String homename) {
         try {
-            cfg.load(homeFile);
+            homeCfg.load(homeFile);
         } catch (IOException | InvalidConfigurationException e) {
             e.printStackTrace();
         }
-        if(!cfg.isSet(p.getName()+"."+homename+".world")) {
+        if(!homeCfg.isSet(p.getName()+"."+homename+".world")) {
             p.sendMessage("the home does not exist");
             return;
         }
@@ -269,7 +270,27 @@ public final class DonnerCraftPlugin extends JavaPlugin implements Listener {
 
     }
 
+
+    public void DBAddSellOrder(Player sender, String payReq, ItemStack item) {
+        if(!checksellorder(payReq)) {
+            sender.sendMessage("§c your invoice was wrong or to long. try splitting the invoice with /sell 1 'first part' and /sell 2 'second part'");
+            return;
+        }
+        SellOrder so = new SellOrder(item, payReq, sender);
+        sellOrderCfg.set(so.payReq, so);
+        try{
+            sellOrderCfg.save(sellOrderFile);
+            sender.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
+
+            sender.sendMessage(ChatColor.GREEN + " your sell order was added");
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     public void AddSellOrderRequest(Player sender, String payReq, ItemStack item, boolean isPublic) {
+        DBAddSellOrder(sender, payReq,item);
+        /*
         System.out.println(checksellorder(payReq));
         if(!checksellorder(payReq)) {
             sender.sendMessage("§c your invoice was wrong or to long. try splitting the invoice with /sell 1 'first part' and /sell 2 'second part'");
@@ -283,6 +304,7 @@ public final class DonnerCraftPlugin extends JavaPlugin implements Listener {
         }
 
         sender.sendMessage(ChatColor.GREEN + " your sell order was added");
+        */
     }
 
     public void AddFirstPartSellRequest(Player sender, String partialPayReq) {
@@ -296,12 +318,13 @@ public final class DonnerCraftPlugin extends JavaPlugin implements Listener {
             sender.sendMessage("§c something went wrong, try splitting the invoice with /sell 1 'first part' and /sell 2 'second part'");
             return;
         }
+        DBAddSellOrder(sender, payReq, item);/*
         sellOrders.add(new SellOrder(item, payReq, true, sender));
 
         sender.getInventory().remove(item);
 
         sender.sendMessage(ChatColor.GREEN + " your sell order was added");
-
+            */
     }
 
     boolean checksellorder(String payReq) {
@@ -320,17 +343,41 @@ public final class DonnerCraftPlugin extends JavaPlugin implements Listener {
 
 
     public void listSellOrders(Player sender){
+        DbListSellOrders(sender);
+        /*
         if(sellOrders.size() >= 0) {
             for (int i = 0; i < sellOrders.size(); i++) {
                 SellOrder temp = sellOrders.get(i);
                 if (!temp.claimed && temp.isPublic)
                  sender.sendMessage(i + " item: " + temp.item + " cost: " + lndRpc.blockingStub.decodePayReq(PayReqString.newBuilder().setPayReq(temp.payReq).build()).getNumSatoshis());
             }
-        }
+        }*/
     }
 
-    public void buyItem(Player sender, int number) {
-
+    public void DbListSellOrders(Player sender) {
+        Set<String> keys = sellOrderCfg.getKeys(false);
+        List<String> keyList = new ArrayList<String>(keys);
+        if(keyList.size()> 0 ){
+            for (int i = 0; i < keyList.size(); i++) {
+                SellOrder temp = (SellOrder) sellOrderCfg.get(keyList.get(i));
+                if (!temp.claimed && temp.isPublic)
+                    sender.sendMessage(i + " item: " + temp.item + " cost: " + lndRpc.blockingStub.decodePayReq(PayReqString.newBuilder().setPayReq(temp.payReq).build()).getNumSatoshis());
+            }
+        }
+    }
+    public void DBgetSellOrder(Player sender, int number) {
+        Set<String> keys = sellOrderCfg.getKeys(false);
+        List<String> keyList = new ArrayList<String>(keys);
+        SellOrder sellOrder = (SellOrder) sellOrderCfg.get(keyList.get(number));
+        if (!sellOrder.claimed) {
+            sender.sendMessage(sellOrder.payReq);
+            QRMapSpawner.SpawnMap(sender, sellOrder.payReq);
+        } else {
+            sender.sendMessage("item already claimed");
+        }
+    }
+    public void getSellOrder(Player sender, int number) {
+        DBgetSellOrder(sender, number);/*
         SellOrder sellOrder = sellOrders.get(number);
         if (!sellOrder.claimed) {
             sender.sendMessage(sellOrder.payReq);
@@ -338,16 +385,89 @@ public final class DonnerCraftPlugin extends JavaPlugin implements Listener {
         } else {
             sender.sendMessage("item already claimed");
         }
-
+        */
 
     }
 
     public void claimItem(Player sender, String preimage){
-        ItemStack item = findMatch(preimage);
+        ItemStack item = DBFindMatch(preimage);
         if (item != null)
             sender.getInventory().addItem(item);
+        /*
+        ItemStack item = findMatch(preimage);
+        if (item != null)
+            sender.getInventory().addItem(item);*/
     }
 
+    public void removeSellOrders(Player p) {
+        DBgetMySellOrders(p);
+        /*
+        for (int i = sellOrders.size() - 1; i >= 0; i--) {
+            if(sellOrders.get(i).player == p) {
+                ItemStack item = sellOrders.get(i).item;
+                sellOrders.get(i).claimed = true;
+                p.getInventory().addItem(item);
+            }
+        }*/
+    }
+
+    public void DBgetMySellOrders(Player p) {
+        Set<String> keys = sellOrderCfg.getKeys(false);
+        List<String> keyList = new ArrayList<String>(keys);
+        if (keyList.size() > 0) {
+            for (int i = 0; i < keyList.size(); i++) {
+                SellOrder temp = (SellOrder) sellOrderCfg.get(keyList.get(i));
+                if(temp.player == p.getDisplayName()) {
+                    ItemStack item = temp.item;
+                    temp.claimed = true;
+                    sellOrderCfg.set(temp.payReq, temp);
+                    try{
+                        sellOrderCfg.save(sellOrderFile);
+                        p.getInventory().addItem(item);
+
+                    }
+                    catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
+    ItemStack DBFindMatch(String preimage) {
+        try {
+            String paymentHashIn = Sha.hash256(preimage);
+            Set<String> keys = sellOrderCfg.getKeys(false);
+            List<String> keyList = new ArrayList<String>(keys);
+            if (keyList.size() > 0) {
+                for (int i = 0; i < keyList.size(); i++) {
+                    SellOrder temp = (SellOrder) sellOrderCfg.get(keyList.get(i));
+
+                    String paymentHashCalc = lndRpc.blockingStub.decodePayReq(PayReqString.newBuilder().setPayReq(temp.payReq).build()).getPaymentHash();
+
+                    if (paymentHashCalc.equals(paymentHashIn) && !temp.claimed) {
+
+                        ItemStack item = temp.item;
+                        temp.claimed = true;
+                        sellOrderCfg.set(temp.payReq, temp);
+                        try{
+                            sellOrderCfg.save(sellOrderFile);
+                            return item;
+
+                        }
+                        catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+
+                    }
+                }
+            }
+        }catch (Exception se) {
+            System.out.println(se.getMessage());
+        }
+        return null;
+    }
+    /*
     ItemStack findMatch(String preimage){
         try {
             String paymentHashIn = Sha.hash256(preimage);
@@ -370,7 +490,7 @@ public final class DonnerCraftPlugin extends JavaPlugin implements Listener {
         }
 
         return null;
-    }
+    }*/
 
 
 }

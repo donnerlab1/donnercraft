@@ -22,7 +22,7 @@ public class CommandGetSellOrder implements CommandExecutor {
                 }
                                //String payReq = server.lndRpc.getPaymentRequest(args[1], Integer.parseInt(args[0]));
                 //player.sendMessage(payReq);
-                server.buyItem(player, Integer.parseInt(args[0]));
+                server.getSellOrder(player, Integer.parseInt(args[0]));
             }
         }
         return true;

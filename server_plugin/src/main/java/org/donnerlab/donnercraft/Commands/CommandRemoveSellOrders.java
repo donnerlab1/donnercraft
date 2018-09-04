@@ -5,7 +5,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.PlayerInventory;
 import org.donnerlab.donnercraft.DonnerCraftPlugin;
 
 public class CommandRemoveSellOrders implements CommandExecutor {
@@ -20,7 +19,7 @@ public class CommandRemoveSellOrders implements CommandExecutor {
                 if(args.length != 0) {
                     player.sendMessage(ChatColor.RED + "wrond Command: use /removesellorders");
                 }
-                server.getMySellOorders(player);
+                server.removeSellOrders(player);
 
         }
         return true;

@@ -6,7 +6,7 @@
 
     <groupId>org.donnerlab.donnercraft</groupId>
     <artifactId>donnercraft</artifactId>
-    <version>0.2</version>
+    <version>0.3</version>
     <packaging>jar</packaging>
 
     <name>Donnercraft</name>
