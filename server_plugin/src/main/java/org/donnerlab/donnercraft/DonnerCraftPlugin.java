@@ -370,6 +370,18 @@ public final class DonnerCraftPlugin extends JavaPlugin implements Listener {
         }*/
     }
 
+    public void listSellOrders(Player sender, Material filter) {
+        Set<String> keys = sellOrderCfg.getKeys(false);
+        List<String> keyList = new ArrayList<String>(keys);
+        if(keyList.size()> 0 ){
+            for (int i = 0; i < keyList.size(); i++) {
+                SellOrder temp = (SellOrder) sellOrderCfg.get(keyList.get(i));
+                if (!temp.claimed && temp.isPublic && temp.item.getType() == filter)
+                    sender.sendMessage(i + " item: " + temp.item + " cost: " + lndRpc.blockingStub.decodePayReq(PayReqString.newBuilder().setPayReq(temp.payReq).build()).getNumSatoshis());
+            }
+        }
+    }
+
     public void DbListSellOrders(Player sender) {
         Set<String> keys = sellOrderCfg.getKeys(false);
         List<String> keyList = new ArrayList<String>(keys);

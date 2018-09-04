@@ -1,6 +1,7 @@
 package org.donnerlab.donnercraft.Commands;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -16,12 +17,21 @@ public class CommandListSellOrders implements CommandExecutor {
             Player player = (Player) sender;
 
             if(args != null) {
-                if(args.length != 0) {
-                    player.sendMessage(ChatColor.RED + "wrond Command: use /listsellorders");
-                    return false;
+                if(args.length == 1) {
+                    Material filter = Material.matchMaterial(args[0]);
+                    if(filter==null) {
+                        player.sendMessage(ChatColor.RED + "material not found");
+                    } else {
+                        server.listSellOrders(player, filter);
+                    }
 
+                } else if(args.length == 0) {
+                    server.listSellOrders(player);
+
+                } else {
+                    player.sendMessage(ChatColor.RED + "wrond Command: use /listsellorders");
                 }
-                server.listSellOrders(player);
+
             }
         }
         return true;

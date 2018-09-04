@@ -16,8 +16,8 @@ commands:
   #  description: INACTIVE send a payment request to a player with /pay player payreq
    # usage: /pay
   listsellorders:
-    description: list sellorders
-    usage: /listsellorders
+    description: list sellorders optional with filter
+    usage: /listsellorders [filter]
   getsellorder:
     description: get sellorder
     usage: /getsellorder
