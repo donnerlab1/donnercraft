@@ -19,10 +19,12 @@ public class CommandGetSellOrder implements CommandExecutor {
             if(args != null) {
                 if(args.length != 1) {
                     player.sendMessage(ChatColor.RED + "wrond Command: use /getsellorder index");
+
+                } else {
+                    //String payReq = server.lndRpc.getPaymentRequest(args[1], Integer.parseInt(args[0]));
+                    //player.sendMessage(payReq);
+                    server.getSellOrder(player, Integer.parseInt(args[0]));
                 }
-                               //String payReq = server.lndRpc.getPaymentRequest(args[1], Integer.parseInt(args[0]));
-                //player.sendMessage(payReq);
-                server.getSellOrder(player, Integer.parseInt(args[0]));
             }
         }
         return true;

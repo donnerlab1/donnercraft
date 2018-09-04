@@ -172,6 +172,12 @@ public final class DonnerCraftPlugin extends JavaPlugin implements Listener {
                             p.sendMessage("teleported to " + parts[2]);
                             break;
                         }
+                        case("emerald"): {
+                            Player p = commandPayloadMap.get(invoice.getPaymentRequest()).sender;
+                            ItemStack emeralds = new ItemStack(Material.EMERALD);
+                            emeralds.setAmount((int)invoice.getValue()/100);
+                            p.getInventory().addItem(emeralds);
+                        }
                     }}
             }
 
@@ -189,11 +195,12 @@ public final class DonnerCraftPlugin extends JavaPlugin implements Listener {
 
    private void setupCommands() {
 
-        getCommand("invoice").setExecutor(new CommandInvoice(this));
+        //getCommand("invoice").setExecutor(new CommandInvoice(this));
         getCommand("teleport").setExecutor(new CommandTeleport(this));
         getCommand("sell").setExecutor(new CommandSell(this));
         //getCommand("pay").setExecutor(new CommandPay(this));
         getCommand("listsellorders").setExecutor(new CommandListSellOrders(this));
+        //getCommand("ls").setExecutor(new CommandListSellOrders(this));
         getCommand("getsellorder").setExecutor(new CommandGetSellOrder(this));
         getCommand("claim").setExecutor(new CommandClaim(this));
         //getCommand("register").setExecutor(new CommandRegister(this));
@@ -202,6 +209,15 @@ public final class DonnerCraftPlugin extends JavaPlugin implements Listener {
 
        getCommand("channel").setExecutor(new CommandChannel(this));
        getCommand("removesellorders").setExecutor(new CommandRemoveSellOrders(this));
+       getCommand("emerald").setExecutor(new CommandEmerald(this));
+    }
+
+    public void AddEmeraldRequest(Player p, int count) {
+        String request = lndRpc.getPaymentRequest("emerald", count*100);
+        ItemStack map = QRMapSpawner.SpawnMap(p, request);
+        PlayerCommandPayload payload = new PlayerCommandPayload(p,map,"emerald");
+        commandPayloadMap.put(request,payload);
+        p.sendMessage(request);
     }
     public void AddTeleportRequest(int steps, Player p) {
         System.out.println("get teleport request for " + steps + " steps by "+  p.getName());

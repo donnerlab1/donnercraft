@@ -19,6 +19,7 @@ public class CommandChannel implements CommandExecutor {
             if(args != null) {
                 if(args.length != 0) {
                     player.sendMessage(ChatColor.RED + "wrond Command: use /channel");
+                    return false;
                 }
                 server.AddChannelRequest(player);
             }

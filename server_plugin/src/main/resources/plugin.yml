@@ -3,18 +3,18 @@ version: ${project.version}
 main: org.donnerlab.donnercraft.DonnerCraftPlugin
 author: donnerlab
 commands:
-  invoice:
-    description: INACTIVE Get Invoice with memo from server usage /invoice amt memo
-    usage: /invoice
+ # invoice:
+  #  description: INACTIVE Get Invoice with memo from server usage /invoice amt memo
+   # usage: /invoice
   teleport:
     description: Teleport steps forward with /teleport steps
     usage: /teleport
   sell:
     description: sell item with /sell payreq or /sell 1/2 payreq for long invoices
     usage: /sell
-  pay:
-    description: INACTIVE send a payment request to a player with /pay player payreq
-    usage: /pay
+ # pay:
+  #  description: INACTIVE send a payment request to a player with /pay player payreq
+   # usage: /pay
   listsellorders:
     description: list sellorders
     usage: /listsellorders
@@ -27,9 +27,9 @@ commands:
   claim:
     description: claim sellorder
     usage: /claim
-  register:
-    description: INACTIVE register on server
-    usage: /register
+  #register:
+   # description: INACTIVE register on server
+    #usage: /register
   home:
     description: teleports home
     usage: /home [name]
@@ -39,3 +39,6 @@ commands:
   channel:
     description: shows channel information
     usage: /channel
+  emerald:
+    description: buys emerald from server (100 sat per emerald)
+    usage: /emerald [count]

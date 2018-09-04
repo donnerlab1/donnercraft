@@ -20,6 +20,7 @@ public class CommandHome implements CommandExecutor {
             plugin.AddHomeRequest(p,args[0]);
         } else {
             p.sendMessage("§c/sethome [name] ");
+
         }
         return true;
     }

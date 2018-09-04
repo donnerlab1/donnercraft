@@ -19,9 +19,10 @@ public class CommandInvoice implements CommandExecutor {
             if(args != null) {
                 if(args.length != 2) {
                     player.sendMessage(ChatColor.RED + "wrond Command: use /invoice memo amt");
+                } else {
+                    String payReq = server.lndRpc.getPaymentRequest(args[1], Integer.parseInt(args[0]));
+                    player.sendMessage(payReq);
                 }
-                String payReq = server.lndRpc.getPaymentRequest(args[1], Integer.parseInt(args[0]));
-                player.sendMessage(payReq);
             }
         }
         return true;
