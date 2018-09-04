@@ -10,7 +10,7 @@ commands:
     description: Teleport steps forward with /teleport steps
     usage: /teleport
   sell:
-    description: sell item with /sell payreq
+    description: sell item with /sell payreq or /sell 1/2 payreq for long invoices
     usage: /sell
   pay:
     description: INACTIVE send a payment request to a player with /pay player payreq
@@ -36,3 +36,5 @@ commands:
   channel:
     description: shows channel information
     usage: /channel
+  selllong:
+    description: sells

@@ -2,6 +2,7 @@ package org.donnerlab.donnercraft;
 
 import io.grpc.stub.StreamObserver;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -30,6 +31,7 @@ public final class DonnerCraftPlugin extends JavaPlugin implements Listener {
     public LndRpc lndRpc;
 
     private Map<String, PlayerCommandPayload> commandPayloadMap;
+    private Map<String,String> partialInvoiceMap;
     private List<SellOrder> sellOrders;
     private Map<String,PlayerInfo> registeredPlayers;
 
@@ -44,6 +46,7 @@ public final class DonnerCraftPlugin extends JavaPlugin implements Listener {
         commandPayloadMap = new HashMap<>();
         sellOrders = new LinkedList<>();
         registeredPlayers = new HashMap<>();
+        partialInvoiceMap = new HashMap<>();
 
         homeFile = new File("plugins/Donnercraft","homes.yml");
         cfg = YamlConfiguration.loadConfiguration(homeFile);
@@ -257,17 +260,48 @@ public final class DonnerCraftPlugin extends JavaPlugin implements Listener {
     }
 
     public void AddSellOrderRequest(Player sender, String payReq, ItemStack item, boolean isPublic) {
-        if(!checksellorder(payReq))
+        System.out.println(checksellorder(payReq));
+        if(!checksellorder(payReq)) {
+            sender.sendMessage("§c your invoice was wrong or to long. try splitting the invoice with /sell 1 'first part' and /sell 2 'second part'");
             return;
+        }
+
         sellOrders.add(new SellOrder(item, payReq, isPublic));
         sender.getInventory().remove(item);
         if(!isPublic){
             QRMapSpawner.SpawnMap(sender, payReq);
         }
+
+        sender.sendMessage(ChatColor.GREEN + " your sell order was added");
+    }
+
+    public void AddFirstPartSellRequest(Player sender, String partialPayReq) {
+        partialInvoiceMap.put(sender.getDisplayName(), partialPayReq);
+        sender.sendMessage(ChatColor.YELLOW + " the first part of your invoice was added");
+    }
+
+    public void AddSecondPartSellRequest(Player sender, String partialPayReq, ItemStack item) {
+        String payReq = partialInvoiceMap.get(sender.getDisplayName()) + partialPayReq;
+        if(!checksellorder(payReq)) {
+            sender.sendMessage("§c something went wrong, try splitting the invoice with /sell 1 'first part' and /sell 2 'second part'");
+            return;
+        }
+        sellOrders.add(new SellOrder(item, payReq, true));
+
+        sender.getInventory().remove(item);
+
+        sender.sendMessage(ChatColor.GREEN + " your sell order was added");
+
     }
 
     boolean checksellorder(String payReq) {
-        PayReq decodePayReq = lndRpc.blockingStub.decodePayReq(PayReqString.newBuilder().setPayReq(payReq).build());
+        PayReq decodePayReq;
+        try {
+            decodePayReq = lndRpc.blockingStub.decodePayReq(PayReqString.newBuilder().setPayReq(payReq).build());
+        } catch (Exception e) {
+            System.out.println("caught exception " + e);
+            return false;
+        }
         if(decodePayReq.isInitialized())
             return true;
         return false;
