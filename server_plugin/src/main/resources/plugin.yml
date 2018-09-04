@@ -21,6 +21,9 @@ commands:
   getsellorder:
     description: get sellorder
     usage: /getsellorder
+  removesellorders:
+    description: removes your sellorders
+    usage: /removesellorders
   claim:
     description: claim sellorder
     usage: /claim
@@ -36,5 +39,3 @@ commands:
   channel:
     description: shows channel information
     usage: /channel
-  selllong:
-    description: sells

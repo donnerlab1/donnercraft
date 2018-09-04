@@ -192,6 +192,7 @@ public final class DonnerCraftPlugin extends JavaPlugin implements Listener {
        getCommand("sethome").setExecutor(new CommandSetHome(this));
 
        getCommand("channel").setExecutor(new CommandChannel(this));
+       getCommand("removesellorders").setExecutor(new CommandRemoveSellOrders(this));
     }
     public void AddTeleportRequest(int steps, Player p) {
         System.out.println("get teleport request for " + steps + " steps by "+  p.getName());
@@ -224,6 +225,15 @@ public final class DonnerCraftPlugin extends JavaPlugin implements Listener {
         PlayerCommandPayload payload = new PlayerCommandPayload(p,map,"sethome");
         commandPayloadMap.put(request,payload);
         p.sendMessage(request);
+    }
+    public void getMySellOorders(Player p) {
+        for (int i = sellOrders.size() - 1; i >= 0; i--) {
+            if(sellOrders.get(i).player == p) {
+                ItemStack item = sellOrders.get(i).item;
+                sellOrders.get(i).claimed = true;
+                p.getInventory().addItem(item);
+            }
+        }
     }
     public void AddHomeRequest(Player p, String homename) {
         try {
@@ -266,7 +276,7 @@ public final class DonnerCraftPlugin extends JavaPlugin implements Listener {
             return;
         }
 
-        sellOrders.add(new SellOrder(item, payReq, isPublic));
+        sellOrders.add(new SellOrder(item, payReq, isPublic, sender));
         sender.getInventory().remove(item);
         if(!isPublic){
             QRMapSpawner.SpawnMap(sender, payReq);
@@ -286,7 +296,7 @@ public final class DonnerCraftPlugin extends JavaPlugin implements Listener {
             sender.sendMessage("§c something went wrong, try splitting the invoice with /sell 1 'first part' and /sell 2 'second part'");
             return;
         }
-        sellOrders.add(new SellOrder(item, payReq, true));
+        sellOrders.add(new SellOrder(item, payReq, true, sender));
 
         sender.getInventory().remove(item);
 
@@ -346,7 +356,7 @@ public final class DonnerCraftPlugin extends JavaPlugin implements Listener {
                     SellOrder temp = sellOrders.get(i);
                     String paymentHashCalc = lndRpc.blockingStub.decodePayReq(PayReqString.newBuilder().setPayReq(temp.payReq).build()).getPaymentHash();
 
-                    if( paymentHashCalc.equals(paymentHashIn)) {
+                    if( paymentHashCalc.equals(paymentHashIn) && !sellOrders.get(i).claimed) {
 
                         ItemStack item = sellOrders.get(i).item;
                         sellOrders.get(i).claimed = true;
